@@ -14,6 +14,7 @@ namespace OnboardInternship.Models
         public string CustomerId { get; set; }
 
         public string StoreId { get; set; }
-        public DateTime? DateSold { get; set; }
+
+       public string DateSold { get; set; }
     }
 }

@@ -11,6 +11,8 @@ using System.Web.Http.Description;
 using System.Web.Mvc;
 using OnboardInternship;
 using OnboardInternship.Models;
+using System.Data.SqlTypes;
+using System.Data.Entity.SqlServer;
 
 namespace OnboardInternship.Controllers
 {
@@ -18,28 +20,36 @@ namespace OnboardInternship.Controllers
     {
         private InternshipEntities db = new InternshipEntities();
 
-        // GET: api/Sales
-        /* public IQueryable<Sale> GetSales()
+        /*// GET: api/Sales
+         public IQueryable<Sale> GetSales()
          {
              return db.Sales;
-         }
-         */
+         }*/
+         
         public object GetSales()
         {
-            var s = from S in db.Sales
+            var s = (from S in db.Sales
                     join C in db.Customers on S.CustomerId equals C.Id
                     join P in db.Products on S.ProductId equals P.Id
                     join ST in db.Stores on S.StoreId equals ST.Id
                     select new
-                    {S.Id,S.DateSold,
-                        CName=C.Name,
+                    {S.Id,S.ProductId,S.CustomerId,S.StoreId,S.DateSold,
+                        DS = SqlFunctions.DateName("day", S.DateSold).Trim() + "/" +
+        SqlFunctions.StringConvert((double)S.DateSold.Value.Month).TrimStart() + "/" +
+        SqlFunctions.DateName("year", S.DateSold),
+                    
+                    //DateSold=Convert.ToDateTime(S.DateSold).ToString("yyyy-mm-dd"),
+                    //DateSold=DbFunctions.TruncateTime(S.DateSold),
+                        CName =C.Name,
                         PName=P.Name,
-                        SName=ST.Name};
+                        SName=ST.Name}).ToList();
+
+            
 
             return s;
         }
-
-
+        
+    
 
 
 
@@ -61,7 +71,7 @@ namespace OnboardInternship.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return "Update Failed";
+                return "Model Invalid";
             }
 
             db.Entry(sale).State = EntityState.Modified;
